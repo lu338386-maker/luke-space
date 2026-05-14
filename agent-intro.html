@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>LUKE | SPACE 经纪人版介绍</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --bg: #f5f5f6;
+        --text: #23262b;
+        --muted: #8d9199;
+        --gold: #b89a5f;
+      }
+      body {
+        margin: 0;
+        background: radial-gradient(circle at 20% -10%, #f9f4ea 0%, #f5f5f6 42%);
+        color: var(--text);
+        font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+      }
+      .safe-top { padding-top: calc(env(safe-area-inset-top) + 12px); }
+      .safe-bottom { padding-bottom: calc(env(safe-area-inset-bottom) + 16px); }
+      .gold { color: var(--gold); }
+      .card { background: #fff; border: 1px solid #e7e8ec; border-radius: 18px; }
+    </style>
+  </head>
+  <body>
+    <main class="mx-auto w-full max-w-[480px] min-h-screen px-4 safe-top safe-bottom">
+      <header class="pt-2">
+        <p class="text-[11px] tracking-[0.24em] text-[#8d9199]">L U K E | S P A C E</p>
+        <h1 class="mt-2 text-[28px] font-semibold leading-tight">给经纪人的私域情报与房源工作台</h1>
+        <p class="mt-3 text-[14px] text-[#6b7280] leading-6">把分散在线索群、聊天记录和个人笔记里的房源信息，收敛成可追踪、可复用、可展示的一套成交系统。</p>
+        <button class="mt-5 w-full rounded-xl bg-[#b89a5f] py-3 text-[15px] font-medium text-white">申请试用经纪人版</button>
+      </header>
+
+      <section class="mt-5 space-y-3">
+        <article class="card p-4">
+          <p class="text-[12px] text-[#8d9199]">01 · 情报 Pulse</p>
+          <h2 class="mt-1 text-[18px] font-semibold">行业信息流 + 经纪人互动</h2>
+          <p class="mt-2 text-[14px] text-[#6b7280]">实时跟踪板块变动，支持点赞、收藏、评论，让团队判断更快统一。</p>
+        </article>
+
+        <article class="card p-4">
+          <p class="text-[12px] text-[#8d9199]">02 · 公共 Library</p>
+          <h2 class="mt-1 text-[18px] font-semibold">联卖资源检索与筛选</h2>
+          <p class="mt-2 text-[14px] text-[#6b7280]">按面积、单价、标签快速过滤，减少重复找盘时间。</p>
+        </article>
+
+        <article class="card p-4">
+          <p class="text-[12px] text-[#8d9199]">03 · 工作室 Studio</p>
+          <h2 class="mt-1 text-[18px] font-semibold">私密房源库与成交笔记</h2>
+          <p class="mt-2 text-[14px] text-[#6b7280]">敏感字段默认打码，PIN 解锁 + 自动回锁。数据优先保存在经纪人设备本地。</p>
+        </article>
+
+        <article class="card p-4">
+          <p class="text-[12px] text-[#8d9199]">04 · H5 展示</p>
+          <h2 class="mt-1 text-[18px] font-semibold">一键生成客户展示页</h2>
+          <p class="mt-2 text-[14px] text-[#6b7280]">把房源图片和卖点自动编排成全屏滚动展示，便于微信转发和带看前预热。</p>
+        </article>
+      </section>
+
+      <section class="mt-5 card p-4">
+        <h3 class="text-[16px] font-semibold">适用角色</h3>
+        <div class="mt-3 grid grid-cols-2 gap-2 text-[13px]">
+          <div class="rounded-lg bg-[#f8f8f9] p-2">豪宅经纪人</div>
+          <div class="rounded-lg bg-[#f8f8f9] p-2">店组负责人</div>
+          <div class="rounded-lg bg-[#f8f8f9] p-2">联卖协同团队</div>
+          <div class="rounded-lg bg-[#f8f8f9] p-2">新人成交训练</div>
+        </div>
+      </section>
+
+      <footer class="mt-5 pb-4 text-center text-[12px] text-[#9aa0aa]">
+        <p>LUKE | SPACE · 经纪人效率工具</p>
+      </footer>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,1364 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no"
+    />
+    <title>LUKE | SPACE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --bg: #f5f5f6;
+        --text: #23262b;
+        --muted: #8d9199;
+        --gold: #b89a5f;
+        --line: #e7e8ec;
+        --card-bg: #ffffff;
+      }
+
+      html,
+      body {
+        background: radial-gradient(circle at 20% -10%, #f9f4ea 0%, #f5f5f6 42%);
+        color: var(--text);
+        margin: 0;
+        font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Source Han Sans SC", sans-serif;
+      }
+
+      .safe-top {
+        padding-top: calc(env(safe-area-inset-top) + 10px);
+      }
+
+      .safe-bottom {
+        padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
+      }
+
+      .glass {
+        backdrop-filter: blur(10px);
+        background: rgba(245, 245, 246, 0.92);
+      }
+
+      .gold-glow {
+        box-shadow: 0 0 0 1px rgba(184, 154, 95, 0.2), 0 10px 24px rgba(184, 154, 95, 0.1);
+      }
+
+      .feed-card {
+        background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+        border: 1px solid var(--line);
+        transition: transform 260ms ease, border-color 260ms ease, box-shadow 260ms ease;
+        animation: breathe 5.4s ease-in-out infinite;
+      }
+
+      .feed-card:active {
+        transform: scale(0.99);
+      }
+
+      .feed-card.open {
+        border-color: rgba(184, 154, 95, 0.55);
+        box-shadow: 0 10px 26px rgba(27, 29, 33, 0.1), 0 0 0 1px rgba(184, 154, 95, 0.15);
+      }
+
+      @keyframes breathe {
+        0%,
+        100% {
+          box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+        }
+        50% {
+          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
+        }
+      }
+
+      .expand {
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height 320ms ease, opacity 260ms ease, margin 260ms ease;
+      }
+
+      .expand.show {
+        max-height: 220px;
+        opacity: 1;
+        margin-top: 12px;
+      }
+
+      .tab-btn.active {
+        color: var(--gold);
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--gold);
+        box-shadow: 0 0 10px rgba(212, 175, 55, 0.7);
+      }
+
+      #tab-pulse,
+      #tab-library,
+      #tab-studio,
+      #tab-profile {
+        color: var(--text);
+      }
+
+      #pulseStats > div,
+      .listing-card,
+      #tab-profile .rounded-2xl,
+      #studioForm,
+      #studioList article {
+        background: var(--card-bg) !important;
+        border-color: var(--line) !important;
+      }
+
+      #studioForm input,
+      #studioForm textarea,
+      #librarySearch,
+      #filterAreaMin,
+      #filterAreaMax,
+      #filterPriceMin,
+      #filterPriceMax,
+      #librarySort {
+        background: #f8f8f9 !important;
+        border-color: #e4e6ea !important;
+        color: #2c3138 !important;
+      }
+
+      #libraryResetBtn,
+      #toggleForm,
+      #exportBtn,
+      #privacyLockBtn,
+      #tab-studio label {
+        background: #fff !important;
+        border-color: #dddfe4 !important;
+        color: #4a4f57 !important;
+      }
+
+      #toggleForm {
+        border-color: rgba(184, 154, 95, 0.45) !important;
+        color: var(--gold) !important;
+      }
+
+      .tab-btn {
+        color: #9ba1aa !important;
+      }
+
+      .tab-btn.active {
+        color: var(--gold) !important;
+        font-weight: 600;
+      }
+
+      .tab-icon {
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      .headline-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 18px;
+        border: 1px solid #e2e4e9;
+        background: #fff;
+      }
+
+      .headline-card img {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        display: block;
+      }
+
+      .headline-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.55));
+      }
+
+      .action-btn {
+        border: 1px solid #e7e8ec;
+        background: #fff;
+        color: #6c7380;
+      }
+
+      .action-btn.active {
+        border-color: rgba(184, 154, 95, 0.45);
+        color: #b89a5f;
+        background: rgba(184, 154, 95, 0.08);
+      }
+
+      .waterfall {
+        columns: 1;
+        column-gap: 12px;
+      }
+
+      .listing-card {
+        break-inside: avoid;
+        margin-bottom: 12px;
+        border: 1px solid #343438;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #202022;
+      }
+
+      .listing-cover {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+      }
+
+      .listing-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .listing-cover::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent 30%, rgba(0, 0, 0, 0.7) 100%);
+      }
+
+      .fader-enter {
+        animation: fader 360ms ease;
+      }
+
+      @keyframes fader {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .h5-view {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        background: #111;
+        color: #f2f2f2;
+        overflow-y: auto;
+        scroll-snap-type: y mandatory;
+      }
+
+      .h5-slide {
+        position: relative;
+        min-height: 100svh;
+        scroll-snap-align: start;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-start;
+        padding: 28px 20px calc(env(safe-area-inset-bottom) + 28px);
+      }
+
+      .h5-slide img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(0.8);
+      }
+
+      .h5-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.78));
+      }
+
+      .h5-text {
+        position: relative;
+        z-index: 2;
+        animation: rise 560ms ease;
+      }
+
+      .sensitive-field {
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+      }
+
+      @keyframes rise {
+        from {
+          transform: translateY(16px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @media (min-width: 460px) {
+        .waterfall {
+          columns: 2;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <script src="./config.js"></script>
+    <script type="module">
+      import {
+        saveListingDualTrack
+      } from "./listingService.js";
+
+      window.lukeServices = {
+        saveListingDualTrack
+      };
+    </script>
+
+    <div class="mx-auto w-full max-w-[480px] min-h-screen relative">
+      <header class="safe-top sticky top-0 z-20 glass border-b border-[#2f2f33]">
+        <div class="px-4 pt-2 pb-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-[11px] tracking-[0.24em] text-[#9ca3af]">L U K E | S P A C E</p>
+              <h1 id="tabTitle" class="text-[19px] font-semibold mt-1">情报 Pulse</h1>
+            </div>
+            <div class="flex items-center gap-2 text-[12px] text-[#9ca3af]">
+              <span class="dot"></span>
+              <span>Live</span>
+            </div>
+          </div>
+
+          <div id="pulseStats" class="mt-4 grid grid-cols-2 gap-3">
+            <div class="rounded-2xl p-3 gold-glow bg-[#202022]">
+              <p class="text-[11px] text-[#9ca3af] tracking-widest">今日活跃指数</p>
+              <p class="mt-1 text-[26px] font-light text-[#d4af37]"><span id="activeScore">00</span></p>
+            </div>
+            <div class="rounded-2xl p-3 border border-[#2f2f33] bg-[#202022]">
+              <p class="text-[11px] text-[#9ca3af] tracking-widest">板块热力</p>
+              <p class="mt-1 text-[26px] font-light text-[#e5e5e5]"><span id="hotScore">00</span></p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main id="tab-pulse" class="px-4 pt-4 pb-28">
+        <section class="mb-4 headline-card">
+          <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80" alt="headline" />
+          <div class="headline-overlay"></div>
+          <div class="absolute left-3 top-3 rounded-full bg-[rgba(184,154,95,0.92)] px-2 py-1 text-[11px] text-white"># 3000-5000万</div>
+          <div class="absolute left-4 right-4 bottom-4 text-white">
+            <p class="text-[28px] leading-none">·</p>
+            <p class="text-[28px] leading-none -mt-2">·</p>
+            <p class="mt-2 text-[15px] leading-6 font-medium">揭秘3000-5000万区间豪宅楼盘的独特魅力</p>
+          </div>
+        </section>
+
+        <section class="space-y-4" id="feedList"></section>
+      </main>
+
+      <main id="tab-library" class="hidden px-4 pt-4 pb-28">
+        <div class="mb-3">
+          <label class="sr-only" for="librarySearch">楼盘字典搜索</label>
+          <input id="librarySearch" type="text" placeholder="搜索楼盘 / 板块 / 标签" class="w-full rounded-xl border border-[#343438] bg-[#202022] px-4 py-3 text-[14px] text-[#E5E5E5] placeholder:text-[#7e7e85] outline-none focus:border-[#D4AF37]" />
+        </div>
+
+        <div class="mb-4 rounded-xl border border-[#343438] bg-[#202022] p-3">
+          <p class="text-[12px] text-[#9ca3af] mb-2">精细筛选</p>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="filterAreaMin" type="number" placeholder="最小面积㎡" class="w-full rounded-lg border border-[#343438] bg-[#1a1a1c] px-3 py-2 text-[13px] outline-none focus:border-[#d4af37]" />
+            <input id="filterAreaMax" type="number" placeholder="最大面积㎡" class="w-full rounded-lg border border-[#343438] bg-[#1a1a1c] px-3 py-2 text-[13px] outline-none focus:border-[#d4af37]" />
+            <input id="filterPriceMin" type="number" placeholder="最低单价(万/㎡)" class="w-full rounded-lg border border-[#343438] bg-[#1a1a1c] px-3 py-2 text-[13px] outline-none focus:border-[#d4af37]" />
+            <input id="filterPriceMax" type="number" placeholder="最高单价(万/㎡)" class="w-full rounded-lg border border-[#343438] bg-[#1a1a1c] px-3 py-2 text-[13px] outline-none focus:border-[#d4af37]" />
+          </div>
+          <div class="mt-2 grid grid-cols-2 gap-2">
+            <select id="librarySort" class="w-full rounded-lg border border-[#343438] bg-[#1a1a1c] px-3 py-2 text-[13px] outline-none focus:border-[#d4af37]">
+              <option value="default">默认排序</option>
+              <option value="priceAsc">单价从低到高</option>
+              <option value="priceDesc">单价从高到低</option>
+              <option value="areaAsc">面积从小到大</option>
+              <option value="areaDesc">面积从大到小</option>
+            </select>
+            <button id="libraryResetBtn" class="rounded-lg border border-[#4a4a4f] bg-[#1a1a1c] px-3 py-2 text-[13px] text-[#d6d6dc]">重置筛选</button>
+          </div>
+          <div id="tagFilters" class="mt-3 flex flex-wrap gap-2"></div>
+        </div>
+
+        <section id="libraryGrid" class="waterfall"></section>
+      </main>
+
+      <main id="tab-studio" class="hidden px-4 pt-4 pb-28">
+        <div class="flex gap-2">
+          <button id="toggleForm" class="flex-1 rounded-xl border border-[#4a4122] bg-[#242017] py-3 text-[14px] text-[#d4af37]">新增房源</button>
+          <button id="privacyLockBtn" class="rounded-xl border border-[#4a4a4f] bg-[#202022] px-3 text-[13px]">隐私锁定</button>
+          <button id="exportBtn" class="rounded-xl border border-[#343438] bg-[#202022] px-3 text-[13px]">导出</button>
+          <label class="rounded-xl border border-[#343438] bg-[#202022] px-3 text-[13px] flex items-center">
+            导入
+            <input id="importFile" type="file" accept="application/json" class="hidden" />
+          </label>
+        </div>
+
+        <form id="studioForm" class="hidden mt-4 space-y-3 rounded-2xl border border-[#343438] bg-[#202022] p-4">
+          <input type="hidden" name="id" />
+          <input name="buildingId" placeholder="楼盘ID（上云建议填唯一编码）" class="w-full rounded-lg border border-[#343438] bg-[#1a1a1c] px-3 py-2 text-[14px] outline-none focus:border-[#d4af37]" />
+          <input name="project" required placeholder="楼盘名称" class="w-full rounded-lg border border-[#343438] bg-[#1a1a1c] px-3 py-2 text-[14px] outline-none focus:border-[#d4af37]" />
+          <input name="layout" placeholder="户型（如 3室2厅）" class="w-full rounded-lg border border-[#343438] bg-[#1a1a1c] px-3 py-2 text-[14px] outline-none focus:border-[#d4af37]" />
+          <input name="area" placeholder="面积㎡（公共）" class="w-full rounded-lg border border-[#343438] bg-[#1a1a1c] px-3 py-2 text-[14px] outline-none focus:border-[#d4af37]" />
+          <input name="unitNo" required placeholder="房号（敏感）" class="w-full rounded-lg border border-[#343438] bg-[#1a1a1c] px-3 py-2 text-[14px] outline-none focus:border-[#d4af37]" />
+          <input name="price" required placeholder="底价（敏感）" class="w-full rounded-lg border border-[#343438] bg-[#1a1a1c] px-3 py-2 text-[14px] outline-none focus:border-[#d4af37]" />
+          <input name="owner" placeholder="业主信息（敏感）" class="w-full rounded-lg border border-[#343438] bg-[#1a1a1c] px-3 py-2 text-[14px] outline-none focus:border-[#d4af37]" />
+          <textarea name="note" rows="4" placeholder="私密笔记" class="w-full rounded-lg border border-[#343438] bg-[#1a1a1c] px-3 py-2 text-[14px] outline-none focus:border-[#d4af37]"></textarea>
+          <p id="cloudStatus" class="text-[12px] text-[#8d9199]">云端状态：未配置 Supabase（当前仅本地保存）</p>
+          <button class="w-full rounded-lg bg-[#d4af37] py-2 text-[14px] font-medium text-[#1a1a1a]">保存到本机</button>
+        </form>
+
+        <section class="mt-4 space-y-3" id="studioList"></section>
+      </main>
+
+      <main id="tab-profile" class="hidden px-4 pt-4 pb-28">
+        <div class="rounded-2xl border border-[#343438] bg-[#202022] p-4">
+          <p class="text-[12px] text-[#9ca3af]">会员状态</p>
+          <p class="mt-1 text-[20px] text-[#d4af37]">Elite</p>
+          <div class="mt-4 grid grid-cols-2 gap-3 text-[13px]">
+            <div class="rounded-lg border border-[#343438] p-3">
+              <p class="text-[#9ca3af]">本月线索收益</p>
+              <p class="mt-1 text-[18px]">¥ 89,200</p>
+            </div>
+            <div class="rounded-lg border border-[#343438] p-3">
+              <p class="text-[#9ca3af]">转化率</p>
+              <p class="mt-1 text-[18px]">34.7%</p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <nav class="safe-bottom fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] border-t border-[#2f2f33] glass z-30">
+        <div class="grid grid-cols-4 px-2 py-2 text-[12px]">
+          <button class="tab-btn active py-1.5 flex flex-col items-center gap-1" data-tab="pulse">
+            <span class="tab-icon">◈</span>
+            <span>情报</span>
+          </button>
+          <button class="tab-btn py-1.5 text-[#9ca3af] flex flex-col items-center gap-1" data-tab="library">
+            <span class="tab-icon">⌁</span>
+            <span>公共</span>
+          </button>
+          <button class="tab-btn py-1.5 text-[#9ca3af] flex flex-col items-center gap-1" data-tab="studio">
+            <span class="tab-icon">⌂</span>
+            <span>工作室</span>
+          </button>
+          <button class="tab-btn py-1.5 text-[#9ca3af] flex flex-col items-center gap-1" data-tab="profile">
+            <span class="tab-icon">◌</span>
+            <span>我的</span>
+          </button>
+        </div>
+        <p id="appVersionText" class="pb-1 text-center text-[10px] text-[#a4a9b1]">version --</p>
+      </nav>
+    </div>
+
+    <script>
+      const feedData = [
+        {
+          id: "p1",
+          alias: "V-07",
+          agent: "林顾问",
+          content: "某项目新出急售，业主可谈空间明显，预计 48h 内成交。",
+          time: "2 分钟前",
+          detail: "线索来源：三方交叉确认。建议优先跟进 128-156㎡段。"
+        },
+        {
+          id: "p2",
+          alias: "N-19",
+          agent: "季顾问",
+          content: "板块北侧两套联动挂牌，单价锚点下移 3.2%。",
+          time: "11 分钟前",
+          detail: "关联信息：同小区近 7 日带看上升，议价窗口预计维持到周末。"
+        },
+        {
+          id: "p3",
+          alias: "K-31",
+          agent: "顾问组",
+          content: "核心盘出现低总价补位房号，适合首改客户切入。",
+          time: "26 分钟前",
+          detail: "建议动作：先推成交周期短客户池，二次约看优先晚间时段。"
+        }
+      ];
+
+      const libraryData = [
+        { project: "天曜中心", area: "142㎡", areaNum: 142, unitPrice: "11.8万/㎡", unitPriceNum: 11.8, tag: "联卖", image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80" },
+        { project: "澜庭壹号", area: "98㎡", areaNum: 98, unitPrice: "9.6万/㎡", unitPriceNum: 9.6, tag: "钥匙盘", image: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80" },
+        { project: "翡翠海湾", area: "186㎡", areaNum: 186, unitPrice: "12.3万/㎡", unitPriceNum: 12.3, tag: "景观", image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80" },
+        { project: "棠樾府", area: "122㎡", areaNum: 122, unitPrice: "10.2万/㎡", unitPriceNum: 10.2, tag: "急售", image: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80" },
+        { project: "云玺公馆", area: "165㎡", areaNum: 165, unitPrice: "13.1万/㎡", unitPriceNum: 13.1, tag: "景观", image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80" }
+      ];
+
+      const tabs = ["pulse", "library", "studio", "profile"];
+      const libraryFilterKey = "luke_space_library_filters";
+      const tabTitleMap = {
+        pulse: "情报 Pulse",
+        library: "公共 Library",
+        studio: "工作室 Studio",
+        profile: "我的 Profile"
+      };
+
+      const selectedTags = new Set();
+      const pulseStateKey = "luke_space_pulse_interactions_v1";
+      let pulseState = {};
+
+      function loadPulseState() {
+        try {
+          pulseState = JSON.parse(localStorage.getItem(pulseStateKey) || "{}");
+        } catch {
+          pulseState = {};
+        }
+      }
+
+      function persistPulseState() {
+        localStorage.setItem(pulseStateKey, JSON.stringify(pulseState));
+      }
+
+      function ensurePostState(postId) {
+        if (!pulseState[postId]) {
+          pulseState[postId] = {
+            liked: false,
+            saved: false,
+            likes: 0,
+            saves: 0,
+            comments: []
+          };
+        }
+        return pulseState[postId];
+      }
+
+      function renderFeed() {
+        const feedList = document.getElementById("feedList");
+        feedList.innerHTML = feedData
+          .map(
+            (item, index) => {
+              const st = ensurePostState(item.id);
+              return `
+              <article class="feed-card rounded-2xl p-4" data-index="${index}">
+                <div class="flex items-start gap-3">
+                  <div class="h-10 w-10 rounded-full border border-[#e3dfd3] bg-[#f7f2e7] flex items-center justify-center text-[12px] text-[#b89a5f]">${item.alias}</div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[12px] text-[#8d9199]">${item.agent}</p>
+                    <p class="text-[15px] leading-6 tracking-[0.01em]">${item.content}</p>
+                    <p class="mt-2 text-[11px] text-[#9ca3af]">${item.time}</p>
+                  </div>
+                </div>
+                <div class="expand text-[13px] leading-6 text-[#5f6670] border-t border-[#ececf0] pt-3">${item.detail}</div>
+                <div class="mt-3 flex items-center gap-2">
+                  <button class="action-btn like-btn ${st.liked ? "active" : ""} rounded-full px-3 py-1.5 text-[12px]" data-id="${item.id}">
+                    点赞 ${st.likes}
+                  </button>
+                  <button class="action-btn save-btn ${st.saved ? "active" : ""} rounded-full px-3 py-1.5 text-[12px]" data-id="${item.id}">
+                    收藏 ${st.saves}
+                  </button>
+                </div>
+                <div class="mt-3 rounded-xl border border-[#ececf0] bg-[#fcfcfd] p-2">
+                  <div class="space-y-1 mb-2 comment-list" data-id="${item.id}">
+                    ${st.comments
+                      .slice(-2)
+                      .map((c) => `<p class="text-[12px] text-[#5f6670]"><span class="text-[#2c3138]">${c.user}：</span>${c.text}</p>`)
+                      .join("") || '<p class="text-[12px] text-[#9ba1aa]">还没有评论，抢先发布观点</p>'}
+                  </div>
+                  <div class="flex gap-2">
+                    <input class="comment-input flex-1 rounded-lg border border-[#e4e6ea] bg-white px-2 py-1.5 text-[12px] outline-none focus:border-[#b89a5f]" data-id="${item.id}" placeholder="经纪人评论…" />
+                    <button class="comment-send rounded-lg border border-[#dddfe4] bg-white px-2 py-1.5 text-[12px]" data-id="${item.id}">发送</button>
+                  </div>
+                </div>
+              </article>
+            `;
+            }
+          )
+          .join("");
+
+        const cards = document.querySelectorAll(".feed-card");
+        cards.forEach((card) => {
+          card.addEventListener("click", () => {
+            const panel = card.querySelector(".expand");
+            const opened = panel.classList.contains("show");
+
+            cards.forEach((c) => {
+              c.classList.remove("open");
+              c.querySelector(".expand").classList.remove("show");
+            });
+
+            if (!opened) {
+              card.classList.add("open");
+              panel.classList.add("show");
+            }
+          });
+        });
+
+        feedList.querySelectorAll(".like-btn").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            const st = ensurePostState(id);
+            st.liked = !st.liked;
+            st.likes = Math.max(0, st.likes + (st.liked ? 1 : -1));
+            persistPulseState();
+            renderFeed();
+          });
+        });
+
+        feedList.querySelectorAll(".save-btn").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            const st = ensurePostState(id);
+            st.saved = !st.saved;
+            st.saves = Math.max(0, st.saves + (st.saved ? 1 : -1));
+            persistPulseState();
+            renderFeed();
+          });
+        });
+
+        feedList.querySelectorAll(".comment-send").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            const input = feedList.querySelector(`.comment-input[data-id="${id}"]`);
+            const text = input.value.trim();
+            if (!text) return;
+            const st = ensurePostState(id);
+            st.comments.push({
+              user: "我",
+              text
+            });
+            input.value = "";
+            persistPulseState();
+            renderFeed();
+          });
+        });
+      }
+
+      function renderLibrary(list = libraryData) {
+        const grid = document.getElementById("libraryGrid");
+        grid.innerHTML = list
+          .map(
+            (item) => `
+              <article class="listing-card fader-enter">
+                <div class="listing-cover">
+                  <img src="${item.image}" alt="${item.project}" loading="lazy" />
+                  <div class="absolute z-10 left-3 bottom-3 right-3 flex items-end justify-between gap-2">
+                    <div>
+                      <p class="text-[15px] text-[#f4f4f4]">${item.project}</p>
+                      <p class="text-[12px] text-[#d8d8d8] mt-0.5">${item.area}</p>
+                    </div>
+                    <div class="rounded-md bg-[rgba(18,18,18,0.64)] border border-[rgba(212,175,55,0.42)] px-2 py-1 text-[11px] text-[#d4af37]">
+                      ${item.unitPrice} · ${item.tag}
+                    </div>
+                  </div>
+                </div>
+              </article>
+            `
+          )
+          .join("");
+      }
+
+      function renderTagFilters() {
+        const wrap = document.getElementById("tagFilters");
+        const tags = [...new Set(libraryData.map((item) => item.tag))];
+        wrap.innerHTML = tags
+          .map(
+            (tag) => `
+              <button data-tag="${tag}" class="tag-btn rounded-full border px-3 py-1 text-[12px] border-[#4a4a4f] text-[#c9c9cf]">${tag}</button>
+            `
+          )
+          .join("");
+
+        wrap.querySelectorAll(".tag-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const tag = btn.dataset.tag;
+            if (selectedTags.has(tag)) {
+              selectedTags.delete(tag);
+            } else {
+              selectedTags.add(tag);
+            }
+            syncTagButtonState();
+            applyLibraryFilters();
+          });
+        });
+
+        syncTagButtonState();
+      }
+
+      function syncTagButtonState() {
+        document.querySelectorAll(".tag-btn").forEach((btn) => {
+          const active = selectedTags.has(btn.dataset.tag);
+          btn.className = active
+            ? "tag-btn rounded-full border px-3 py-1 text-[12px] border-[#d4af37] text-[#d4af37] bg-[rgba(212,175,55,0.12)]"
+            : "tag-btn rounded-full border px-3 py-1 text-[12px] border-[#4a4a4f] text-[#c9c9cf]";
+        });
+      }
+
+      function applyLibraryFilters() {
+        const key = document.getElementById("librarySearch").value.trim();
+        const areaMin = Number(document.getElementById("filterAreaMin").value || 0);
+        const areaMax = Number(document.getElementById("filterAreaMax").value || Number.POSITIVE_INFINITY);
+        const priceMin = Number(document.getElementById("filterPriceMin").value || 0);
+        const priceMax = Number(document.getElementById("filterPriceMax").value || Number.POSITIVE_INFINITY);
+        const sortBy = document.getElementById("librarySort").value;
+
+        const filtered = libraryData.filter((item) => {
+          const matchText = !key || `${item.project}${item.tag}${item.unitPrice}`.includes(key);
+          const matchArea = item.areaNum >= areaMin && item.areaNum <= areaMax;
+          const matchPrice = item.unitPriceNum >= priceMin && item.unitPriceNum <= priceMax;
+          const matchTag = !selectedTags.size || selectedTags.has(item.tag);
+          return matchText && matchArea && matchPrice && matchTag;
+        });
+
+        const sorted = [...filtered];
+        if (sortBy === "priceAsc") sorted.sort((a, b) => a.unitPriceNum - b.unitPriceNum);
+        if (sortBy === "priceDesc") sorted.sort((a, b) => b.unitPriceNum - a.unitPriceNum);
+        if (sortBy === "areaAsc") sorted.sort((a, b) => a.areaNum - b.areaNum);
+        if (sortBy === "areaDesc") sorted.sort((a, b) => b.areaNum - a.areaNum);
+
+        renderLibrary(sorted);
+        persistLibraryFilters();
+      }
+
+      function persistLibraryFilters() {
+        const payload = {
+          key: document.getElementById("librarySearch").value.trim(),
+          areaMin: document.getElementById("filterAreaMin").value,
+          areaMax: document.getElementById("filterAreaMax").value,
+          priceMin: document.getElementById("filterPriceMin").value,
+          priceMax: document.getElementById("filterPriceMax").value,
+          sortBy: document.getElementById("librarySort").value,
+          tags: [...selectedTags]
+        };
+        localStorage.setItem(libraryFilterKey, JSON.stringify(payload));
+      }
+
+      function restoreLibraryFilters() {
+        try {
+          const raw = localStorage.getItem(libraryFilterKey);
+          if (!raw) return;
+          const data = JSON.parse(raw);
+          document.getElementById("librarySearch").value = data.key || "";
+          document.getElementById("filterAreaMin").value = data.areaMin || "";
+          document.getElementById("filterAreaMax").value = data.areaMax || "";
+          document.getElementById("filterPriceMin").value = data.priceMin || "";
+          document.getElementById("filterPriceMax").value = data.priceMax || "";
+          document.getElementById("librarySort").value = data.sortBy || "default";
+          selectedTags.clear();
+          (data.tags || []).forEach((tag) => selectedTags.add(tag));
+        } catch {
+          // noop
+        }
+      }
+
+      function resetLibraryFilters() {
+        document.getElementById("librarySearch").value = "";
+        document.getElementById("filterAreaMin").value = "";
+        document.getElementById("filterAreaMax").value = "";
+        document.getElementById("filterPriceMin").value = "";
+        document.getElementById("filterPriceMax").value = "";
+        document.getElementById("librarySort").value = "default";
+        selectedTags.clear();
+        syncTagButtonState();
+        applyLibraryFilters();
+      }
+
+      function animateNumber(el, end, duration = 1200) {
+        const start = 0;
+        const t0 = performance.now();
+        function tick(now) {
+          const p = Math.min((now - t0) / duration, 1);
+          const value = Math.floor(start + (end - start) * (1 - Math.pow(1 - p, 3)));
+          el.textContent = String(value).padStart(2, "0");
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+
+      function setActiveTab(tabName) {
+        tabs.forEach((name) => {
+          const tabEl = document.getElementById(`tab-${name}`);
+          const btn = document.querySelector(`.tab-btn[data-tab="${name}"]`);
+          const active = name === tabName;
+          tabEl.classList.toggle("hidden", !active);
+          btn.classList.toggle("active", active);
+          btn.classList.toggle("text-[#9ca3af]", !active);
+        });
+
+        document.getElementById("tabTitle").textContent = tabTitleMap[tabName];
+        document.getElementById("pulseStats").classList.toggle("hidden", tabName !== "pulse");
+      }
+
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.addEventListener("click", () => setActiveTab(btn.dataset.tab));
+      });
+
+      ["librarySearch", "filterAreaMin", "filterAreaMax", "filterPriceMin", "filterPriceMax", "librarySort"].forEach((id) => {
+        document.getElementById(id).addEventListener("input", applyLibraryFilters);
+        document.getElementById(id).addEventListener("change", applyLibraryFilters);
+      });
+      document.getElementById("libraryResetBtn").addEventListener("click", resetLibraryFilters);
+
+      const storeKey = "luke_space_studio_private_records";
+      const dbName = "luke_space_private_db";
+      const dbVersion = 1;
+      const storeName = "studio_records";
+      let dbPromise = null;
+      const pinStoreKey = "luke_space_studio_pin_hash";
+      let privacyUnlockedUntil = 0;
+      let lockTimer = null;
+
+      function nowMs() {
+        return Date.now();
+      }
+
+      function isPrivacyUnlocked() {
+        return nowMs() < privacyUnlockedUntil;
+      }
+
+      function setPrivacyUnlocked(ms = 60000) {
+        privacyUnlockedUntil = nowMs() + ms;
+        scheduleAutoLock();
+      }
+
+      function lockPrivacyNow() {
+        privacyUnlockedUntil = 0;
+        if (lockTimer) {
+          clearTimeout(lockTimer);
+          lockTimer = null;
+        }
+        renderStudio();
+      }
+
+      function scheduleAutoLock() {
+        if (lockTimer) clearTimeout(lockTimer);
+        const delay = Math.max(privacyUnlockedUntil - nowMs(), 0);
+        lockTimer = setTimeout(() => {
+          lockPrivacyNow();
+        }, delay);
+      }
+
+      function supportsIndexedDB() {
+        return typeof window !== "undefined" && "indexedDB" in window;
+      }
+
+      function openDB() {
+        if (!supportsIndexedDB()) {
+          return Promise.reject(new Error("IndexedDB not supported"));
+        }
+        if (dbPromise) return dbPromise;
+
+        dbPromise = new Promise((resolve, reject) => {
+          const req = indexedDB.open(dbName, dbVersion);
+          req.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(storeName)) {
+              db.createObjectStore(storeName, { keyPath: "id" });
+            }
+          };
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+
+        return dbPromise;
+      }
+
+      function idbGetAll() {
+        return openDB().then(
+          (db) =>
+            new Promise((resolve, reject) => {
+              const tx = db.transaction(storeName, "readonly");
+              const store = tx.objectStore(storeName);
+              const req = store.getAll();
+              req.onsuccess = () => resolve(req.result || []);
+              req.onerror = () => reject(req.error);
+            })
+        );
+      }
+
+      function idbPut(item) {
+        return openDB().then(
+          (db) =>
+            new Promise((resolve, reject) => {
+              const tx = db.transaction(storeName, "readwrite");
+              tx.oncomplete = () => resolve();
+              tx.onerror = () => reject(tx.error);
+              tx.objectStore(storeName).put(item);
+            })
+        );
+      }
+
+      function idbDelete(id) {
+        return openDB().then(
+          (db) =>
+            new Promise((resolve, reject) => {
+              const tx = db.transaction(storeName, "readwrite");
+              tx.oncomplete = () => resolve();
+              tx.onerror = () => reject(tx.error);
+              tx.objectStore(storeName).delete(id);
+            })
+        );
+      }
+
+      async function getStudioRecords() {
+        if (supportsIndexedDB()) {
+          try {
+            const records = await idbGetAll();
+            return records.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          } catch {
+            return getLocalRecords();
+          }
+        }
+        return getLocalRecords();
+      }
+
+      function getLocalRecords() {
+        try {
+          return JSON.parse(localStorage.getItem(storeKey) || "[]");
+        } catch {
+          return [];
+        }
+      }
+
+      // Private Notes Data Logic
+      // Sensitive fields (unitNo, floor price, owner info, private note) are stored locally on the user's device (IndexedDB first, localStorage fallback).
+      async function saveStudioRecord(record) {
+        const item = {
+          id: record.id || String(Date.now()),
+          createdAt: record.createdAt || new Date().toISOString(),
+          project: record.project,
+          unitNo: record.unitNo,
+          price: record.price,
+          owner: record.owner,
+          note: record.note
+        };
+
+        if (supportsIndexedDB()) {
+          try {
+            await idbPut(item);
+            return;
+          } catch {
+            // fall through
+          }
+        }
+
+        const data = getLocalRecords();
+        const idx = data.findIndex((x) => x.id === item.id);
+        if (idx >= 0) {
+          data[idx] = item;
+        } else {
+          data.unshift(item);
+        }
+        localStorage.setItem(storeKey, JSON.stringify(data));
+      }
+
+      async function saveStudioWithCloud(record) {
+        const cloudStatus = document.getElementById("cloudStatus");
+        const svc = window.lukeServices;
+        if (!svc || !svc.saveListingDualTrack) {
+          await saveStudioRecord(record);
+          cloudStatus.textContent = "云端状态：未加载云服务模块，已本地保存";
+          return { mode: "local_only" };
+        }
+
+        try {
+          const payload = {
+            building_id: record.buildingId || `local-${record.project || "unknown"}`,
+            building_name: record.project || "",
+            layout: record.layout || "",
+            area_num: record.area ? Number(record.area) : null,
+            public_price_num: record.price ? Number(record.price) : null,
+            tags: ["手动录入"],
+            unit_no_plain: record.unitNo || "",
+            owner_mindset: record.owner || "",
+            key_location: "",
+            showing_risks: "",
+            private_notes: record.note || ""
+          };
+
+          const res = await svc.saveListingDualTrack(payload, null);
+          cloudStatus.textContent = `云端状态：已上云（Listing ${String(res.public.id).slice(0, 8)}...）并本地保存`;
+          return { mode: "dual_track", data: res };
+        } catch (error) {
+          await saveStudioRecord(record);
+          cloudStatus.textContent = `云端状态：上云失败，已回退本地保存（${error.message || "unknown"}）`;
+          return { mode: "fallback_local", error };
+        }
+      }
+
+      async function removeStudioRecord(id) {
+        if (supportsIndexedDB()) {
+          try {
+            await idbDelete(id);
+            return;
+          } catch {
+            // fall through
+          }
+        }
+
+        const next = getLocalRecords().filter((item) => item.id !== id);
+        localStorage.setItem(storeKey, JSON.stringify(next));
+      }
+
+      async function renderStudio() {
+        const list = document.getElementById("studioList");
+        const data = await getStudioRecords();
+
+        list.innerHTML = data
+          .map(
+            (item) => `
+              <article class="rounded-xl border border-[#343438] bg-[#202022] p-3" data-id="${item.id}">
+                <p class="text-[15px]">${item.project}</p>
+                <p class="mt-1 text-[12px] text-[#9ca3af]">
+                  房号
+                  <span class="sensitive-field" data-sensitive="unitNo" data-raw="${escapeHTML(item.unitNo || "")}" data-mask="${maskUnitNo(item.unitNo || "")}">${maskUnitNo(item.unitNo || "")}</span>
+                  · 底价
+                  <span class="sensitive-field" data-sensitive="price" data-raw="${escapeHTML(item.price || "")}" data-mask="${maskPrice(item.price || "")}">${maskPrice(item.price || "")}</span>
+                </p>
+                <p class="mt-2 text-[13px] text-[#d4d4d4] whitespace-pre-wrap">${item.note || "(无私密笔记)"}</p>
+                <div class="mt-3 flex gap-2 text-[12px]">
+                  <button class="edit-btn rounded-md border border-[#4a4a4f] px-2 py-1">编辑</button>
+                  <button class="del-btn rounded-md border border-[#6b3535] text-[#ffb9b9] px-2 py-1">删除</button>
+                </div>
+              </article>
+            `
+          )
+          .join("");
+
+        if (!data.length) {
+          list.innerHTML = '<p class="text-[12px] text-[#8f8f96] mt-2">暂无记录，点击上方“新增房源”开始录入。</p>';
+          return;
+        }
+
+        list.querySelectorAll(".edit-btn").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            const id = e.target.closest("article").dataset.id;
+            const records = await getStudioRecords();
+            const record = records.find((r) => r.id === id);
+            if (!record) return;
+            fillStudioForm(record);
+          });
+        });
+
+        list.querySelectorAll(".del-btn").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            const id = e.target.closest("article").dataset.id;
+            if (!confirm("确认删除该房源记录？")) return;
+            await removeStudioRecord(id);
+            await renderStudio();
+          });
+        });
+
+        list.querySelectorAll(".sensitive-field").forEach((el) => {
+          bindLongPressReveal(el);
+        });
+      }
+
+      function escapeHTML(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll("\"", "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function maskUnitNo(value) {
+        const str = String(value || "");
+        if (!str) return "--";
+        if (str.length <= 2) return "*".repeat(str.length);
+        return "*".repeat(str.length - 2) + str.slice(-2);
+      }
+
+      function maskPrice(value) {
+        const str = String(value || "");
+        if (!str) return "--";
+        const visible = str.slice(-2);
+        return "****" + visible;
+      }
+
+      function bindLongPressReveal(el) {
+        let timer = null;
+        let revealed = false;
+        let verified = false;
+        const reveal = () => {
+          if (!verified) return;
+          revealed = true;
+          el.textContent = el.dataset.raw || "";
+          el.classList.add("text-[#f0d98c]");
+        };
+        const hide = () => {
+          if (!revealed) return;
+          revealed = false;
+          el.textContent = el.dataset.mask || "";
+          el.classList.remove("text-[#f0d98c]");
+        };
+        const start = async () => {
+          verified = await ensurePrivacyUnlocked();
+          if (!verified) return;
+          timer = setTimeout(reveal, 450);
+        };
+        const cancel = () => {
+          clearTimeout(timer);
+          setTimeout(hide, 120);
+        };
+        el.addEventListener("touchstart", start, { passive: true });
+        el.addEventListener("touchend", cancel);
+        el.addEventListener("touchcancel", cancel);
+        el.addEventListener("mousedown", start);
+        el.addEventListener("mouseup", cancel);
+        el.addEventListener("mouseleave", cancel);
+      }
+
+      function fillStudioForm(record) {
+        const form = document.getElementById("studioForm");
+        form.elements["id"].value = record.id;
+        form.buildingId.value = record.buildingId || "";
+        form.project.value = record.project || "";
+        form.layout.value = record.layout || "";
+        form.area.value = record.area || "";
+        form.unitNo.value = record.unitNo || "";
+        form.price.value = record.price || "";
+        form.owner.value = record.owner || "";
+        form.note.value = record.note || "";
+        form.classList.remove("hidden");
+      }
+
+      document.getElementById("toggleForm").addEventListener("click", () => {
+        const form = document.getElementById("studioForm");
+        form.reset();
+        form.elements["id"].value = "";
+        form.classList.toggle("hidden");
+      });
+
+      document.getElementById("studioForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const form = e.currentTarget;
+        const fd = new FormData(form);
+        await saveStudioWithCloud({
+          id: fd.get("id")?.trim(),
+          buildingId: fd.get("buildingId")?.trim(),
+          project: fd.get("project")?.trim(),
+          layout: fd.get("layout")?.trim(),
+          area: fd.get("area")?.trim(),
+          unitNo: fd.get("unitNo")?.trim(),
+          price: fd.get("price")?.trim(),
+          owner: fd.get("owner")?.trim(),
+          note: fd.get("note")?.trim()
+        });
+        form.reset();
+        form.classList.add("hidden");
+        await renderStudio();
+      });
+
+      async function hashPassphrase(passphrase) {
+        const input = new TextEncoder().encode(passphrase);
+        const digest = await crypto.subtle.digest("SHA-256", input);
+        return digest;
+      }
+
+      function base64FromArrayBuffer(buffer) {
+        return btoa(String.fromCharCode(...new Uint8Array(buffer)));
+      }
+
+      async function getPinHash() {
+        return localStorage.getItem(pinStoreKey) || "";
+      }
+
+      async function setPin(pin) {
+        const digest = await hashPassphrase(pin);
+        localStorage.setItem(pinStoreKey, base64FromArrayBuffer(digest));
+      }
+
+      async function verifyPin(pin) {
+        const saved = await getPinHash();
+        if (!saved) return false;
+        const digest = await hashPassphrase(pin);
+        return saved === base64FromArrayBuffer(digest);
+      }
+
+      async function ensurePrivacyUnlocked() {
+        if (isPrivacyUnlocked()) return true;
+        const savedPinHash = await getPinHash();
+        if (!savedPinHash) {
+          const firstPin = prompt("首次使用请设置4-8位数字PIN");
+          if (!firstPin || !/^[0-9]{4,8}$/.test(firstPin)) {
+            alert("PIN无效，需要4-8位数字");
+            return false;
+          }
+          const confirmPin = prompt("再次输入PIN确认");
+          if (firstPin !== confirmPin) {
+            alert("两次PIN不一致");
+            return false;
+          }
+          await setPin(firstPin);
+        } else {
+          const pin = prompt("输入PIN以查看敏感信息（60秒自动回锁）");
+          if (!pin) return false;
+          const ok = await verifyPin(pin);
+          if (!ok) {
+            alert("PIN错误");
+            return false;
+          }
+        }
+        setPrivacyUnlocked(60000);
+        return true;
+      }
+
+      async function encryptText(plainText, passphrase) {
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const keyMaterial = await hashPassphrase(passphrase);
+        const key = await crypto.subtle.importKey("raw", keyMaterial, { name: "AES-GCM" }, false, ["encrypt"]);
+        const data = new TextEncoder().encode(plainText);
+        const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, data);
+
+        return {
+          iv: btoa(String.fromCharCode(...iv)),
+          payload: btoa(String.fromCharCode(...new Uint8Array(encrypted)))
+        };
+      }
+
+      async function decryptText(payload, passphrase) {
+        const iv = Uint8Array.from(atob(payload.iv), (c) => c.charCodeAt(0));
+        const data = Uint8Array.from(atob(payload.payload), (c) => c.charCodeAt(0));
+        const keyMaterial = await hashPassphrase(passphrase);
+        const key = await crypto.subtle.importKey("raw", keyMaterial, { name: "AES-GCM" }, false, ["decrypt"]);
+        const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, data);
+        return new TextDecoder().decode(decrypted);
+      }
+
+      document.getElementById("privacyLockBtn").addEventListener("click", () => {
+        lockPrivacyNow();
+      });
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          lockPrivacyNow();
+        }
+      });
+
+      document.getElementById("exportBtn").addEventListener("click", async () => {
+        const passphrase = prompt("输入导出密码（用于加密备份）");
+        if (!passphrase) return;
+
+        const records = await getStudioRecords();
+        const encrypted = await encryptText(JSON.stringify(records), passphrase);
+        const blob = new Blob([JSON.stringify({
+          app: "LUKE_SPACE",
+          version: 1,
+          createdAt: new Date().toISOString(),
+          encrypted
+        }, null, 2)], { type: "application/json" });
+
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `luke-space-backup-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+
+      document.getElementById("importFile").addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+          const text = await file.text();
+          const backup = JSON.parse(text);
+          const passphrase = prompt("输入备份密码（用于解密）");
+          if (!passphrase) return;
+          const plain = await decryptText(backup.encrypted, passphrase);
+          const records = JSON.parse(plain);
+
+          for (const record of records) {
+            await saveStudioRecord(record);
+          }
+
+          await renderStudio();
+          alert("导入完成");
+        } catch {
+          alert("导入失败：文件或密码不正确");
+        } finally {
+          e.target.value = "";
+        }
+      });
+
+      async function generateH5View(items) {
+        const records = await getStudioRecords();
+        const source = items?.length
+          ? items
+          : records.map((i) => ({
+              image: "https://images.unsplash.com/photo-1460317442991-0ec209397118?auto=format&fit=crop&w=1200&q=80",
+              title: i.project,
+              subtitle: `${i.unitNo} · ${i.price}`,
+              description: i.note || "私密视图"
+            }));
+
+        if (!source.length) return;
+
+        const container = document.createElement("section");
+        container.className = "h5-view";
+        container.innerHTML = `
+          <button class="fixed right-4 top-4 z-[90] rounded-full border border-[#d4af37] bg-[rgba(26,26,26,0.72)] px-3 py-1 text-[12px] text-[#d4af37]">关闭</button>
+          ${source
+            .map(
+              (item) => `
+                <article class="h5-slide">
+                  <img src="${item.image}" alt="${item.title}" />
+                  <div class="h5-overlay"></div>
+                  <div class="h5-text">
+                    <p class="text-[28px] font-light tracking-wide">${item.title}</p>
+                    <p class="mt-2 text-[14px] text-[#f1df9a]">${item.subtitle || ""}</p>
+                    <p class="mt-3 max-w-[90%] text-[14px] leading-6 text-[#e6e6e6]">${item.description || ""}</p>
+                  </div>
+                </article>
+              `
+            )
+            .join("")}
+        `;
+
+        container.querySelector("button").addEventListener("click", () => container.remove());
+        document.body.appendChild(container);
+      }
+
+      window.generateH5View = generateH5View;
+      document.getElementById("appVersionText").textContent = `version ${window.APP_VERSION || "dev"}`;
+
+      window.addEventListener("error", (event) => {
+        try {
+          const logs = JSON.parse(localStorage.getItem("luke_space_error_logs") || "[]");
+          logs.unshift({
+            type: "error",
+            message: event.message || "unknown",
+            source: event.filename || "",
+            lineno: event.lineno || 0,
+            colno: event.colno || 0,
+            at: new Date().toISOString()
+          });
+          localStorage.setItem("luke_space_error_logs", JSON.stringify(logs.slice(0, 50)));
+        } catch {
+          // noop
+        }
+      });
+
+      window.addEventListener("unhandledrejection", (event) => {
+        try {
+          const logs = JSON.parse(localStorage.getItem("luke_space_error_logs") || "[]");
+          logs.unshift({
+            type: "promise_rejection",
+            message: String(event.reason || "unknown"),
+            at: new Date().toISOString()
+          });
+          localStorage.setItem("luke_space_error_logs", JSON.stringify(logs.slice(0, 50)));
+        } catch {
+          // noop
+        }
+      });
+
+      loadPulseState();
+      renderFeed();
+      renderTagFilters();
+      restoreLibraryFilters();
+      syncTagButtonState();
+      applyLibraryFilters();
+      renderStudio();
+      animateNumber(document.getElementById("activeScore"), 87);
+      animateNumber(document.getElementById("hotScore"), 64);
+    </script>
+  </body>
+</html>

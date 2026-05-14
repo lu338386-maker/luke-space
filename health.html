@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LUKE | SPACE Health</title>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 24px; }
+      .ok { color: #0a7a2f; }
+      .meta { color: #555; }
+      code { background: #f2f2f3; padding: 2px 6px; border-radius: 6px; }
+    </style>
+  </head>
+  <body>
+    <h1>LUKE | SPACE Health Check</h1>
+    <p class="ok">status: ok</p>
+    <p class="meta">app: <code>luke-space-web</code></p>
+    <p class="meta">version: <code id="v">unknown</code></p>
+    <p class="meta">time: <code id="t"></code></p>
+    <script src="./config.js"></script>
+    <script>
+      document.getElementById('v').textContent = window.APP_VERSION || 'dev';
+      document.getElementById('t').textContent = new Date().toISOString();
+    </script>
+  </body>
+</html>
