@@ -303,6 +303,12 @@
   <body>
     <script src="./config.js"></script>
     <script type="module">
+      if (!window.SUPABASE_URL) {
+        window.SUPABASE_URL = "https://kdcrpriulfosfytrznxi.supabase.co";
+      }
+      if (!window.SUPABASE_ANON_KEY) {
+        window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkY3Jwcml1bGZvc2Z5dHJ6bnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NTMxMTMsImV4cCI6MjA5NDMyOTExM30.LMrFgLaqF_pa8SuNmtL59M3iHzSHg4QTnE0Fp5-3xTY";
+      }
       import {
         saveListingDualTrack
       } from "./listingService.js";
