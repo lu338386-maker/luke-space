@@ -951,7 +951,20 @@
       async function saveStudioWithCloud(record) {
         const cloudStatus = document.getElementById("cloudStatus");
         const svc = window.lukeServices;
+        const hasRuntimeSupabase = Boolean(window.SUPABASE_URL && window.SUPABASE_ANON_KEY);
         if (!svc || !svc.saveListingDualTrack) {
+          if (hasRuntimeSupabase) {
+            try {
+              const cloudRes = await savePublicListingViaRest(record);
+              await saveStudioRecord(record);
+              cloudStatus.textContent = `云端状态：已通过 REST 上云（Listing ${String(cloudRes.id || "").slice(0, 8)}...）并本地保存`;
+              return { mode: "rest_dual_track", data: cloudRes };
+            } catch (error) {
+              await saveStudioRecord(record);
+              cloudStatus.textContent = `云端状态：REST 上云失败，已本地保存（${error.message || "unknown"}）`;
+              return { mode: "fallback_local", error };
+            }
+          }
           await saveStudioRecord(record);
           cloudStatus.textContent = "云端状态：未加载云服务模块，已本地保存";
           return { mode: "local_only" };
@@ -980,6 +993,46 @@
           cloudStatus.textContent = `云端状态：上云失败，已回退本地保存（${error.message || "unknown"}）`;
           return { mode: "fallback_local", error };
         }
+      }
+
+      async function sha256Hex(input) {
+        const data = new TextEncoder().encode(input);
+        const hash = await crypto.subtle.digest("SHA-256", data);
+        return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("");
+      }
+
+      async function savePublicListingViaRest(record) {
+        const buildingId = record.buildingId || `local-${record.project || "unknown"}`;
+        const unitNo = record.unitNo || "";
+        const unitHash = await sha256Hex(`${buildingId}::${unitNo}`);
+        const payload = {
+          building_id: buildingId,
+          building_name: record.project || "",
+          unit_no_hash: unitHash,
+          layout: record.layout || null,
+          area_num: record.area ? Number(record.area) : null,
+          public_price_num: record.price ? Number(record.price) : null,
+          tags: ["手动录入"],
+          created_by: null
+        };
+
+        const resp = await fetch(`${window.SUPABASE_URL}/rest/v1/listings_public`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: window.SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${window.SUPABASE_ANON_KEY}`,
+            Prefer: "return=representation"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) {
+          const text = await resp.text();
+          throw new Error(`HTTP ${resp.status}: ${text}`);
+        }
+        const rows = await resp.json();
+        return rows?.[0] || {};
       }
 
       async function removeStudioRecord(id) {
